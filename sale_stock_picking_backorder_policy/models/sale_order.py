@@ -3,7 +3,7 @@
 
 from odoo import api, fields, models
 
-from odoo.addons.stock_picking_backorder_policy.models.res_partner import (
+from odoo.addons.stock_picking_backorder_policy.models.stock_picking import (
     BACKORDER_POLICY_HELP,
     BACKORDER_POLICY_SELECTION,
 )
@@ -25,4 +25,4 @@ class SaleOrder(models.Model):
     @api.depends("partner_shipping_id")
     def _compute_backorder_policy(self):
         for order in self:
-            order.backorder_policy = order.partner_shipping_id.backorder_policy
+            order.backorder_policy = order.partner_shipping_id.sale_backorder_policy
