@@ -28,6 +28,7 @@ class StockBackorderConfirmation(models.TransientModel):
 
     def process(self):
         prec = self.env["decimal.precision"].precision_get("Product Unit")
+        wizard = self
         if not self.show_transfers and (
             any(
                 float_compare(
@@ -45,7 +46,7 @@ class StockBackorderConfirmation(models.TransientModel):
                 wiz_line.move_id.id: wiz_line.qty_to_backorder
                 for wiz_line in self.backorder_confirmation_move_line_ids
             }
-            self = self.with_context(
+            wizard = self.with_context(
                 force_moves_qty_to_backorder=moves_qty_to_backorder
             )
-        return super().process()
+        return super(StockBackorderConfirmation, wizard).process()
