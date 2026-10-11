@@ -69,7 +69,7 @@ class TestStockPickingCustomerRef(TransactionCase):
                         0,
                         {
                             "product_id": self.product.id,
-                            "product_uom_id": self.env.ref("uom.product_uom_unit").id,
+                            "uom_id": self.env.ref("uom.product_uom_unit").id,
                             "quantity": 50.0,
                             "picking_type_id": self.picking_type_id.id,
                             "location_id": self.location_id.id,
