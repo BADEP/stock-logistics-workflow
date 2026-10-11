@@ -9,6 +9,8 @@ from .common import TestStockSplitPickingCase
 
 
 class TestStockSplitPicking(TestStockSplitPickingCase):
+    _test_user_groups = None
+
     def test_stock_split_picking_in_draft(self):
         # Picking state is draft
         self.assertEqual(self.picking.state, "draft")

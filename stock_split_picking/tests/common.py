@@ -53,7 +53,7 @@ class TestStockSplitPickingCase(BaseCommon):
                 "picking_id": picking.id,
                 "product_id": product.id,
                 "product_uom_qty": qty,
-                "product_uom": product.uom_id.id,
+                "uom_id": product.uom_id.id,
                 "location_id": cls.src_location.id,
                 "location_dest_id": cls.dest_location.id,
             }
