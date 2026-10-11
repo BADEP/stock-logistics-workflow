@@ -98,8 +98,10 @@ class TestStockPickingInvoiceLink(TestSaleCommon):
             '"nothing to invoice" after invoicing',
         )
         pick_1 = self.so.picking_ids.filtered(
-            lambda x: x.picking_type_code == "outgoing"
-            and x.state in ("confirmed", "assigned", "partially_available")
+            lambda x: (
+                x.picking_type_code == "outgoing"
+                and x.state in ("confirmed", "assigned", "partially_available")
+            )
         )
         pick_1.move_line_ids.write({"quantity": 1})
         action_data = pick_1.button_validate()
@@ -129,8 +131,10 @@ class TestStockPickingInvoiceLink(TestSaleCommon):
         )
 
         pick_2 = self.so.picking_ids.filtered(
-            lambda x: x.picking_type_code == "outgoing"
-            and x.state in ("confirmed", "assigned", "partially_available")
+            lambda x: (
+                x.picking_type_code == "outgoing"
+                and x.state in ("confirmed", "assigned", "partially_available")
+            )
         )
         pick_2.move_ids.write({"to_refund": False})
         pick_2.move_line_ids.write({"quantity": 1})
@@ -208,8 +212,10 @@ class TestStockPickingInvoiceLink(TestSaleCommon):
 
     def test_return_picking_to_refund(self):
         pick_1 = self.so.picking_ids.filtered(
-            lambda x: x.picking_type_code == "outgoing"
-            and x.state in ("confirmed", "assigned", "partially_available")
+            lambda x: (
+                x.picking_type_code == "outgoing"
+                and x.state in ("confirmed", "assigned", "partially_available")
+            )
         )
         pick_1.move_line_ids.write({"quantity": 2})
         pick_1.button_validate()
@@ -251,8 +257,10 @@ class TestStockPickingInvoiceLink(TestSaleCommon):
 
     def test_invoice_refund(self):
         pick_1 = self.so.picking_ids.filtered(
-            lambda x: x.picking_type_code == "outgoing"
-            and x.state in ("confirmed", "assigned", "partially_available")
+            lambda x: (
+                x.picking_type_code == "outgoing"
+                and x.state in ("confirmed", "assigned", "partially_available")
+            )
         )
         pick_1.move_line_ids.write({"quantity": 2})
         pick_1.button_validate()
@@ -289,8 +297,10 @@ class TestStockPickingInvoiceLink(TestSaleCommon):
         picking.
         """
         pick_1 = self.so.picking_ids.filtered(
-            lambda x: x.picking_type_code == "outgoing"
-            and x.state in ("confirmed", "assigned", "partially_available")
+            lambda x: (
+                x.picking_type_code == "outgoing"
+                and x.state in ("confirmed", "assigned", "partially_available")
+            )
         )
         pick_1.move_line_ids.write({"quantity": 2})
         pick_1.button_validate()
@@ -320,8 +330,10 @@ class TestStockPickingInvoiceLink(TestSaleCommon):
         picking.
         """
         pick_1 = self.so.picking_ids.filtered(
-            lambda x: x.picking_type_code == "outgoing"
-            and x.state in ("confirmed", "assigned", "partially_available")
+            lambda x: (
+                x.picking_type_code == "outgoing"
+                and x.state in ("confirmed", "assigned", "partially_available")
+            )
         )
         pick_1.move_line_ids.write({"quantity": 2})
         pick_1.button_validate()
@@ -338,8 +350,10 @@ class TestStockPickingInvoiceLink(TestSaleCommon):
 
     def test_return_and_invoice_refund(self):
         pick_1 = self.so.picking_ids.filtered(
-            lambda x: x.picking_type_code == "outgoing"
-            and x.state in ("confirmed", "assigned", "partially_available")
+            lambda x: (
+                x.picking_type_code == "outgoing"
+                and x.state in ("confirmed", "assigned", "partially_available")
+            )
         )
         pick_1.move_line_ids.write({"quantity": 2})
         pick_1.button_validate()
@@ -400,8 +414,10 @@ class TestStockPickingInvoiceLink(TestSaleCommon):
         invoice = so._create_invoices()
         # Validate shipment
         picking = so.picking_ids.filtered(
-            lambda x: x.picking_type_code == "outgoing"
-            and x.state in ("confirmed", "assigned")
+            lambda x: (
+                x.picking_type_code == "outgoing"
+                and x.state in ("confirmed", "assigned")
+            )
         )
         # Force to_refund to False to simulate a delivery
         picking.move_ids.write({"to_refund": False})
