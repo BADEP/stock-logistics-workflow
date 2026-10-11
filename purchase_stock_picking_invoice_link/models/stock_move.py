@@ -16,8 +16,9 @@ class StockMove(models.Model):
         if vals.get("state", "") == "done":
             stock_moves = self.get_moves_link_invoice()
             for stock_move in stock_moves.filtered(
-                lambda sm: sm.purchase_line_id
-                and sm.product_id.purchase_method == "purchase"
+                lambda sm: (
+                    sm.purchase_line_id and sm.product_id.purchase_method == "purchase"
+                )
             ):
                 inv_type = (
                     "in_refund"
@@ -36,10 +37,12 @@ class StockMove(models.Model):
 
     def get_moves_link_invoice(self):
         return self.filtered(
-            lambda x: x.state == "done"
-            and not x.scrap_id
-            and (
-                x.location_id.usage == "supplier"
-                or (x.location_dest_id.usage == "supplier" and x.to_refund)
+            lambda x: (
+                x.state == "done"
+                and not x.scrap_id
+                and (
+                    x.location_id.usage == "supplier"
+                    or (x.location_dest_id.usage == "supplier" and x.to_refund)
+                )
             )
         )
