@@ -110,10 +110,10 @@ class ResPartner(models.Model):
                     # Day zero needs special handling because it has a real input time.
                     if not days_to_add:
                         # Date only values only need the day to match the window.
-                        if not isinstance(from_date, datetime):
-                            return from_datetime
-                        # Datetime values inside the window are already valid.
-                        elif start_time <= from_datetime_tz_aware.time() <= end_time:
+                        if (
+                            not isinstance(from_date, datetime)
+                            or start_time <= from_datetime_tz_aware.time() <= end_time
+                        ):
                             return from_datetime
                         # If the candidate time is after this window, try later windows.
                         elif from_datetime_tz_aware.time() > end_time:
