@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <!-- Copyright 2019 Open Source Integrators
      Copyright 2023 ForgeFlow S.L. (https://www.forgeflow.com)
      License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl). -->
@@ -47,8 +48,8 @@
         <field name="view_mode">list,form</field>
     </record>
     <menuitem
-        action="open_view_scrap_reason_code_form"
         id="menu_view_scrap_reason_code_form"
+        action="open_view_scrap_reason_code_form"
         parent="stock.menu_stock_config_settings"
         sequence="55"
         groups="stock.group_stock_manager"
