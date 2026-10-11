@@ -9,6 +9,8 @@ from odoo.addons.base.tests.common import BaseCommon
 
 
 class StockScrap(BaseCommon):
+    _test_user_groups = None
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -85,7 +87,7 @@ class StockScrap(BaseCommon):
                 "location_id": self.stock_location.id,
                 "location_dest_id": self.customer_location.id,
                 "product_id": self.scrap_product.id,
-                "product_uom": self.uom_unit.id,
+                "uom_id": self.uom_unit.id,
                 "product_uom_qty": 1.0,
                 "picking_id": picking.id,
             }
@@ -93,33 +95,35 @@ class StockScrap(BaseCommon):
         move1._action_confirm()
 
         self.assertEqual(move1.state, "assigned")
-        scrap = self.env["stock.scrap"].create(
+        scrap = self.env["stock.move"].create(
             {
+                "is_scrap": True,
                 "product_id": self.scrap_product.id,
-                "product_uom_id": self.scrap_product.uom_id.id,
-                "scrap_qty": 5,
+                "uom_id": self.scrap_product.uom_id.id,
+                "quantity": 5,
+                "location_id": self.stock_location.id,
                 "picking_id": picking.id,
                 "reason_code_id": self.reason_code.id,
             }
         )
         scrap._onchange_reason_code_id()
-        scrap.do_scrap()
-        self.assertEqual(len(picking.move_ids), 2)
-        scrapped_move = picking.move_ids.filtered(lambda m: m.state == "done")
+        self.assertEqual(scrap.location_dest_id, self.scrapped_location)
+        scrap.action_scrap()
+        all_moves = self.env["stock.move"].search([("picking_id", "=", picking.id)])
+        self.assertEqual(len(all_moves), 2)
+        scrapped_move = all_moves.filtered(lambda m: m.state == "done")
         self.assertTrue(scrapped_move, "No scrapped move created.")
+        self.assertEqual(scrapped_move, scrap, "Wrong scrap move.")
         self.assertEqual(
-            scrapped_move.scrap_id.id, scrap.id, "Wrong scrap linked to the move."
-        )
-        self.assertEqual(
-            scrap.scrap_qty,
+            scrap.quantity,
             5,
             "Scrap quantity has been modified and is not correct anymore.",
         )
-        moves = scrap.move_ids
+        moves = scrap
         self.assertEqual(moves.mapped("reason_code_id.id"), [self.reason_code.id])
 
         scrapped_move.quantity = 8
-        self.assertEqual(scrap.scrap_qty, 8, "Scrap quantity is not updated.")
+        self.assertEqual(scrap.quantity, 8, "Scrap quantity is not updated.")
 
     def test_scrap_reason_code_write(self):
         """Scrap the product of a picking2. Then modify the
@@ -144,7 +148,7 @@ class StockScrap(BaseCommon):
                 "location_id": self.stock_location.id,
                 "location_dest_id": self.customer_location.id,
                 "product_id": self.scrap_product.id,
-                "product_uom": self.uom_unit.id,
+                "uom_id": self.uom_unit.id,
                 "product_uom_qty": 1.0,
                 "picking_id": picking2.id,
             }
@@ -152,11 +156,13 @@ class StockScrap(BaseCommon):
         move2._action_confirm()
 
         self.assertEqual(move2.state, "assigned")
-        scrap2 = self.env["stock.scrap"].create(
+        scrap2 = self.env["stock.move"].create(
             {
+                "is_scrap": True,
                 "product_id": self.scrap_product.id,
-                "product_uom_id": self.scrap_product.uom_id.id,
-                "scrap_qty": 5,
+                "uom_id": self.scrap_product.uom_id.id,
+                "quantity": 5,
+                "location_id": self.stock_location.id,
                 "picking_id": picking2.id,
             }
         )
@@ -165,51 +171,54 @@ class StockScrap(BaseCommon):
                 "reason_code_id": self.reason_code.id,
             }
         )
+        self.assertEqual(scrap2.location_dest_id, self.scrapped_location)
         scrap2._onchange_reason_code_id()
-        scrap2.do_scrap()
-        self.assertEqual(len(picking2.move_ids), 2)
-        scrapped_move = picking2.move_ids.filtered(lambda m: m.state == "done")
+        scrap2.action_scrap()
+        all_moves = self.env["stock.move"].search([("picking_id", "=", picking2.id)])
+        self.assertEqual(len(all_moves), 2)
+        scrapped_move = all_moves.filtered(lambda m: m.state == "done")
         self.assertTrue(scrapped_move, "No scrapped move created.")
+        self.assertEqual(scrapped_move, scrap2, "Wrong scrap move.")
         self.assertEqual(
-            scrapped_move.scrap_id.id, scrap2.id, "Wrong scrap linked to the move."
-        )
-        self.assertEqual(
-            scrap2.scrap_qty,
+            scrap2.quantity,
             5,
             "Scrap quantity has been modified and is not correct anymore.",
         )
-        moves = scrap2.move_ids
+        moves = scrap2
         self.assertEqual(moves.mapped("reason_code_id.id"), [self.reason_code.id])
 
         scrapped_move.quantity = 8
-        self.assertEqual(scrap2.scrap_qty, 8, "Scrap quantity is not updated.")
+        self.assertEqual(scrap2.quantity, 8, "Scrap quantity is not updated.")
 
     def test_allowed_reason_codes(self):
         with self.assertRaises(ValidationError):
-            self.env["stock.scrap"].create(
+            self.env["stock.move"].create(
                 {
+                    "is_scrap": True,
                     "product_id": self.scrap_product.id,
-                    "product_uom_id": self.scrap_product_2.uom_id.id,
-                    "scrap_qty": 5,
+                    "uom_id": self.scrap_product_2.uom_id.id,
+                    "quantity": 5,
                     "reason_code_id": self.reason_code_only_categ_2.id,
                 }
             )
-        scrap = self.env["stock.scrap"].create(
+        scrap = self.env["stock.move"].create(
             {
+                "is_scrap": True,
                 "product_id": self.scrap_product.id,
-                "product_uom_id": self.scrap_product.uom_id.id,
-                "scrap_qty": 5,
+                "uom_id": self.scrap_product.uom_id.id,
+                "quantity": 5,
                 "reason_code_id": self.reason_code.id,
             }
         )
         self.assertEqual(scrap.allowed_reason_code_ids, self.reason_code)
         with self.assertRaises(ValidationError):
             scrap.write({"reason_code_id": self.reason_code_only_categ_2.id})
-        scrap = self.env["stock.scrap"].create(
+        scrap = self.env["stock.move"].create(
             {
+                "is_scrap": True,
                 "product_id": self.scrap_product_2.id,
-                "product_uom_id": self.scrap_product_2.uom_id.id,
-                "scrap_qty": 5,
+                "uom_id": self.scrap_product_2.uom_id.id,
+                "quantity": 5,
                 "reason_code_id": self.reason_code_only_categ_2.id,
             }
         )
