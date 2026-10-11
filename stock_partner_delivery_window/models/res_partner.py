@@ -3,8 +3,7 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl)
 
 import datetime
-
-import pytz
+from zoneinfo import ZoneInfo
 
 from odoo import Command, api, fields, models
 from odoo.exceptions import ValidationError
@@ -98,13 +97,11 @@ class ResPartner(models.Model):
         :return: Boolean
         """
         self.ensure_one()
-        timezone = pytz.timezone(self.delivery_window_tz)
+        timezone = ZoneInfo(self.delivery_window_tz)
         if isinstance(date, datetime.datetime):
-            date = pytz.utc.localize(date).astimezone(timezone)
+            date = date.replace(tzinfo=datetime.UTC).astimezone(timezone)
         if self.delivery_time_preference == "workdays":
-            if date.weekday() > 4:
-                return False
-            return True
+            return not date.weekday() > 4
         windows = self._get_delivery_windows(date.weekday()).get(self)
         if windows:
             if not isinstance(date, datetime.datetime):

@@ -9,6 +9,8 @@ from .common import PartnerDeliveryWindowCommon
 
 
 class TestPartnerDeliveryWindowDate(PartnerDeliveryWindowCommon):
+    _test_user_groups = None
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()

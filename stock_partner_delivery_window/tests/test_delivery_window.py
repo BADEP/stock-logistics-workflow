@@ -12,6 +12,8 @@ from .common import PartnerDeliveryWindowCommon
 
 
 class TestPartnerDeliveryWindow(PartnerDeliveryWindowCommon):
+    _test_user_groups = None
+
     @freeze_time("2020-04-02")  # Thursday
     def test_delivery_window_warning(self):
         # No warning with anytime
