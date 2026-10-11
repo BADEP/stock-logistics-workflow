@@ -17,11 +17,11 @@ class ProductProduct(models.Model):
         lot_id = self.env.context.get("lot_id")
         if not lot_id:
             return res
-        domain_quant_loc, domain_move_in_loc, domain_move_out_loc = res
+        domain_quant_loc, domain_move_in_loc, domain_move_out_loc, *others = res
         lot_domain = Domain("restrict_lot_id", "=", lot_id)
         domain_move_in_loc = domain_move_in_loc & lot_domain
         domain_move_out_loc = domain_move_out_loc & lot_domain
-        return domain_quant_loc, domain_move_in_loc, domain_move_out_loc
+        return (domain_quant_loc, domain_move_in_loc, domain_move_out_loc, *others)
 
     def _compute_quantities_dict(
         self, lot_id, owner_id, package_id, from_date=False, to_date=False
@@ -30,9 +30,10 @@ class ProductProduct(models.Model):
         # excludes pending moves without lines yet. We put lot_id in context
         # so _get_domain_locations() handles the restrict_lot_id filtering,
         # and pass None to super() to skip that extra filter.
+        products = self
         if lot_id:
-            self = self.with_context(lot_id=lot_id)
+            products = self.with_context(lot_id=lot_id)
             lot_id = None
-        return super()._compute_quantities_dict(
+        return super(ProductProduct, products)._compute_quantities_dict(
             lot_id, owner_id, package_id, from_date, to_date
         )

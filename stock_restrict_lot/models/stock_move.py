@@ -11,9 +11,7 @@ class StockMove(models.Model):
     # seems better to not copy this field except when a move is split, because a move
     # can be copied in multiple different occasions and could even be copied with a
     # different product...
-    restrict_lot_id = fields.Many2one(
-        "stock.lot", string="Restrict Lot", copy=False, index=True
-    )
+    restrict_lot_id = fields.Many2one("stock.lot", copy=False, index=True)
 
     def _prepare_procurement_values(self):
         vals = super()._prepare_procurement_values()
@@ -152,27 +150,24 @@ class StockMove(models.Model):
     def write(self, vals):
         if "restrict_lot_id" not in vals:
             return super().write(vals)
-        else:
-            restrict_lot_id = vals.pop("restrict_lot_id")
-            restrict_lot = self.env["stock.lot"].browse(restrict_lot_id)
-            chained_move_ids = self._rollup_move_dests()
-            chained_move_ids = self._rollup_not_cancelled_move_origs(
-                chained_move_ids - self.ids
-            )
-            chained_moves = self.env["stock.move"].browse(chained_move_ids)
-            if any(
-                [
-                    sm.state == "done" and sm.lot_ids and sm.lot_ids != restrict_lot
-                    for sm in chained_moves
-                ]
-            ):
-                raise ValidationError(
-                    self.env._(
-                        "You can't modify the Lot/Serial number "
-                        "because at least one move in the chain has "
-                        "already been done with another Lot/Serial number."
-                    )
+        restrict_lot_id = vals.pop("restrict_lot_id")
+        restrict_lot = self.env["stock.lot"].browse(restrict_lot_id)
+        chained_move_ids = self._rollup_move_dests()
+        chained_move_ids = self._rollup_not_cancelled_move_origs(
+            chained_move_ids - self.ids
+        )
+        chained_moves = self.env["stock.move"].browse(chained_move_ids)
+        if any(
+            sm.state == "done" and sm.lot_ids and sm.lot_ids != restrict_lot
+            for sm in chained_moves
+        ):
+            raise ValidationError(
+                self.env._(
+                    "You can't modify the Lot/Serial number "
+                    "because at least one move in the chain has "
+                    "already been done with another Lot/Serial number."
                 )
-            for move in chained_moves:
-                super(StockMove, move).write({"restrict_lot_id": restrict_lot_id})
+            )
+        for move in chained_moves:
+            super(StockMove, move).write({"restrict_lot_id": restrict_lot_id})
         return super().write(vals)
