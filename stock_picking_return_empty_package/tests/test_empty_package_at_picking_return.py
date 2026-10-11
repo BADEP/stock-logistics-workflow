@@ -2,7 +2,6 @@
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 from odoo import Command
-from odoo.tests import Form
 from odoo.tests.common import TransactionCase
 
 
@@ -30,7 +29,7 @@ class TestEmptyPackageAtPickingReturn(TransactionCase):
                     Command.create(
                         {
                             "product_id": cls.product.id,
-                            "product_uom": cls.product.uom_id.id,
+                            "uom_id": cls.product.uom_id.id,
                             "product_uom_qty": 10,
                             "location_id": cls.loc_stock.id,
                             "location_dest_id": cls.loc_customer.id,
@@ -47,17 +46,11 @@ class TestEmptyPackageAtPickingReturn(TransactionCase):
 
     @classmethod
     def _return_picking(cls, picking, quantity):
-        stock_form = Form(
-            cls.env["stock.return.picking"].with_context(
-                active_ids=picking.ids,
-                active_id=picking.id,
-                active_model="stock.picking",
-            )
-        )
-        wizard = stock_form.save()
-        wizard.product_return_moves.write({"quantity": quantity})
-        res = wizard.action_create_returns()
-        return cls.env["stock.picking"].browse(res["res_id"])
+        return_picking = picking._create_return()
+        return_picking.move_ids.product_uom_qty = quantity
+        return_picking.action_confirm()
+        return_picking.action_assign()
+        return return_picking
 
     def test_00(self):
         self.pick_type.empty_package_at_return = False
