@@ -84,7 +84,7 @@ class TestProductCustomerinfoPicking(TransactionCase):
                     Command.create(
                         {
                             "product_id": self.computer_SC234.id,
-                            "product_uom": self.computer_SC234.uom_id.id,
+                            "uom_id": self.computer_SC234.uom_id.id,
                             "product_uom_qty": 1.0,
                             "location_id": self.src_location.id,
                             "location_dest_id": self.dest_location.id,
@@ -115,7 +115,7 @@ class TestProductCustomerinfoPicking(TransactionCase):
                     Command.create(
                         {
                             "product_id": self.computer_SC234.id,
-                            "product_uom": self.computer_SC234.uom_id.id,
+                            "uom_id": self.computer_SC234.uom_id.id,
                             "product_uom_qty": 1.0,
                             "location_id": self.src_location.id,
                             "location_dest_id": self.dest_location.id,
