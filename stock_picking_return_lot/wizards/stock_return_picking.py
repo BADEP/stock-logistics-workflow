@@ -42,8 +42,7 @@ class ReturnPicking(models.TransientModel):
                 qties = self._get_qty_by_lot(line.move_id)
                 first = True
                 for lot, qty in qties.items():
-                    if qty < 0:
-                        qty = 0
+                    qty = max(qty, 0)
                     if first:
                         line.lot_id = lot
                         first = False
