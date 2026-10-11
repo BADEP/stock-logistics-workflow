@@ -6,7 +6,7 @@
 
 from lxml import etree
 
-from odoo import api, models
+from odoo import Command, api, models
 from odoo.exceptions import ValidationError
 
 
@@ -54,13 +54,24 @@ class StockLot(models.Model):
     def _prepare_scrap_vals(self, quant):
         self.ensure_one()
         return {
+            "is_scrap": True,
             "origin": quant.lot_id.name,
             "product_id": quant.product_id.id,
-            "product_uom_id": quant.product_id.uom_id.id,
-            "scrap_qty": quant.quantity,
+            "uom_id": quant.product_id.uom_id.id,
             "location_id": quant.location_id.id,
-            "lot_id": self.id,
-            "package_id": quant.package_id.id,
+            "company_id": quant.company_id.id or self.env.company.id,
+            "move_line_ids": [
+                Command.create(
+                    {
+                        "product_id": quant.product_id.id,
+                        "uom_id": quant.product_id.uom_id.id,
+                        "quantity": quant.quantity,
+                        "location_id": quant.location_id.id,
+                        "lot_id": self.id,
+                        "package_id": quant.package_id.id,
+                    }
+                )
+            ],
         }
 
     def action_scrap_lot(self):
@@ -72,7 +83,7 @@ class StockLot(models.Model):
             raise ValidationError(
                 self.env._("This lot doesn't contain any quant in internal location."),
             )
-        scrap_obj = self.env["stock.scrap"]
+        scrap_obj = self.env["stock.move"]
         scraps = scrap_obj.browse()
         for quant in quants:
             scrap = scrap_obj.create(
@@ -80,12 +91,12 @@ class StockLot(models.Model):
             )
             scraps |= scrap
         result = self.env["ir.actions.act_window"]._for_xml_id(
-            "stock.action_stock_scrap"
+            "stock.stock_scrapped_moves_action"
         )
         result["context"] = self.env.context
         if len(scraps) != 1:
             result["domain"] = [("id", "in", scraps.ids)]
         else:  # pragma: no cover
-            result["views"] = [(self.env.ref("stock.stock_scrap_form_view").id, "form")]
+            result["views"] = [(self.env.ref("stock.view_scrap_move_form").id, "form")]
             result["res_id"] = scraps.id
         return result
