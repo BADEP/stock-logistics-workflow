@@ -14,6 +14,8 @@ class TestStockBackorderPolicy(BackorderPolicyCommon):
     involving a sale order.
     """
 
+    _test_user_groups = None
+
     def _create_picking(self, qty=10.0, backorder_policy=False):
         """Helper: create a confirmed, reserved outgoing picking."""
         picking = self.env["stock.picking"].create(
@@ -28,7 +30,7 @@ class TestStockBackorderPolicy(BackorderPolicyCommon):
             {
                 "product_id": self.product.id,
                 "product_uom_qty": qty,
-                "product_uom": self.product.uom_id.id,
+                "uom_id": self.product.uom_id.id,
                 "picking_id": picking.id,
                 "location_id": self.stock_location.id,
                 "location_dest_id": self.customer_location.id,
@@ -168,7 +170,7 @@ class TestStockBackorderPolicy(BackorderPolicyCommon):
         """
         move_vals = {
             "product_id": self.product.id,
-            "product_uom": self.product.uom_id.id,
+            "uom_id": self.product.uom_id.id,
             "product_uom_qty": 1.0,
             "picking_type_id": self.picking_type_out.id,
             "location_id": self.stock_location.id,
@@ -234,7 +236,7 @@ class TestStockBackorderPolicy(BackorderPolicyCommon):
         ship_move = self.env["stock.move"].create(
             {
                 "product_id": self.product.id,
-                "product_uom": self.product.uom_id.id,
+                "uom_id": self.product.uom_id.id,
                 "product_uom_qty": 5.0,
                 "location_id": output_loc.id,
                 "location_dest_id": self.customer_location.id,
