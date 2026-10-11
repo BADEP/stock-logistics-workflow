@@ -56,6 +56,7 @@ class StockPickingBatch(models.Model):
             self.state = "cancel"
         else:
             return super().action_cancel()
+        return None
 
     def action_print_picking(self):
         pickings = self.mapped("picking_ids")
@@ -85,7 +86,7 @@ class StockPickingBatch(models.Model):
         action = self.picking_ids.action_picking_move_tree()
         action["views"] = [
             (
-                self.env.ref("stock_picking_batch.view_picking_move_tree_inherited").id,
+                self.env.ref("stock.stock_move_view_list_from_batch").id,
                 "list",
             ),
         ]

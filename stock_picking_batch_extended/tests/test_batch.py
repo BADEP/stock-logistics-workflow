@@ -9,6 +9,8 @@ from odoo.addons.base.tests.common import BaseCommon
 
 @tagged("post_install", "-at_install")
 class TestBatchPicking(BaseCommon):
+    _test_user_groups = None
+
     @classmethod
     def _create_product(cls, name, product_type="consu"):
         return cls.env["product.product"].create({"name": name, "type": product_type})

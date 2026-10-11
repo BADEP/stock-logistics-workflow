@@ -2,7 +2,7 @@
 <odoo>
     <record id="stock_picking_batch_form" model="ir.ui.view">
         <field name="model">stock.picking.batch</field>
-        <field name="inherit_id" ref="stock_picking_batch.stock_picking_batch_form" />
+        <field name="inherit_id" ref="stock.stock_picking_batch_form" />
         <field name="arch" type="xml">
             <field name="name" position="attributes">
                 <attribute name="readonly">not id or state != 'draft'</attribute>
@@ -61,14 +61,14 @@
             <xpath expr="//field[@name='picking_ids']" position="attributes">
                 <attribute
                     name="context"
-                >{'form_view_ref': 'stock_picking_batch.view_picking_form_inherited', 'list_view_ref': 'stock.vpicktree'}</attribute>
+                >{'form_view_ref': 'stock.stock_picking_view_form_from_batch', 'list_view_ref': 'stock.vpicktree'}</attribute>
             </xpath>
         </field>
     </record>
 
     <record id="stock_picking_batch_tree" model="ir.ui.view">
         <field name="model">stock.picking.batch</field>
-        <field name="inherit_id" ref="stock_picking_batch.stock_picking_batch_tree" />
+        <field name="inherit_id" ref="stock.stock_picking_batch_tree" />
         <field name="arch" type="xml">
             <field name="name" position="after">
                 <field name="picking_count" optional="show" />
@@ -77,7 +77,7 @@
     </record>
     <record id="stock_picking_batch_filter" model="ir.ui.view">
         <field name="model">stock.picking.batch</field>
-        <field name="inherit_id" ref="stock_picking_batch.stock_picking_batch_filter" />
+        <field name="inherit_id" ref="stock.stock_picking_batch_filter" />
         <field name="arch" type="xml">
             <field name="user_id" position="after">
                 <field name="scheduled_date" />

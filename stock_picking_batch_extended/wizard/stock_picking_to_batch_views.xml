@@ -4,7 +4,7 @@
         <field name="model">stock.picking.to.batch</field>
         <field
             name="inherit_id"
-            ref="stock_picking_batch.stock_picking_to_batch_form"
+            ref="stock.stock_picking_to_batch_form"
         />
         <field name="arch" type="xml">
             <field name="description" position="before">

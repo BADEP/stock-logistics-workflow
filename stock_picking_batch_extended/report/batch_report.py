@@ -70,10 +70,8 @@ class ReportPrintBatchPicking(models.AbstractModel):
                 self.update_level_1(grouped_data[l0_key]["l1_items"][l1_key], op)
             else:
                 grouped_data[l0_key]["l1_items"][l1_key] = self.new_level_1(op)
-        for l0_key in grouped_data:
-            grouped_data[l0_key]["l1_items"] = self.sort_level_1(
-                grouped_data[l0_key]["l1_items"].values()
-            )
+        for l0_data in grouped_data.values():
+            l0_data["l1_items"] = self.sort_level_1(l0_data["l1_items"].values())
         return self.sort_level_0(grouped_data.values())
 
     @api.model

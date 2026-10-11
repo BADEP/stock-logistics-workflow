@@ -46,12 +46,11 @@ class StockPickingToBatch(models.TransientModel):
 
     def load_store_fields(self):
         group_field_ids = (
-            self.env["ir.config_parameter"].sudo().get_param(self._group_field_param)
+            self.env["ir.config_parameter"].sudo().get_str(self._group_field_param)
         )
-        group_fields = self.env["ir.model.fields"].browse(
+        return self.env["ir.model.fields"].browse(
             group_field_ids and json.loads(group_field_ids)
         )
-        return group_fields
 
     @api.model
     def default_get(self, fields):
@@ -169,26 +168,24 @@ class StockPickingToBatch(models.TransientModel):
         # execution keeping the order.
         if self.batch_by_group:
             group_fields = [f.field_id.id for f in self.group_field_ids]
-            self.env["ir.config_parameter"].sudo().set_param(
+            self.env["ir.config_parameter"].sudo().set_str(
                 self._group_field_param, group_fields
             )
         # Ensure that the group field is empty upon the next execution
         elif (
-            self.env["ir.config_parameter"].sudo().get_param(self._group_field_param)
+            self.env["ir.config_parameter"].sudo().get_str(self._group_field_param)
             != "[]"
         ):
-            self.env["ir.config_parameter"].sudo().set_param(
-                self._group_field_param, []
-            )
+            self.env["ir.config_parameter"].sudo().set_str(self._group_field_param, [])
         return self.action_view_batch_picking(batchs)
 
     @api.model
     def action_view_batch_picking(self, batch_pickings):
         if len(batch_pickings) > 1:
             action = self.env["ir.actions.act_window"]._for_xml_id(
-                "stock_picking_batch.stock_picking_batch_action"
+                "stock.stock_picking_batch_action"
             )
             action["domain"] = [("id", "in", batch_pickings.ids)]
         else:
-            action = batch_pickings.get_formview_action()
+            action = batch_pickings.get_record_default_action()
         return action
