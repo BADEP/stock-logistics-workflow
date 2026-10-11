@@ -11,9 +11,10 @@ class StockPickingType(models.Model):
     def fields_get(self, allfields=None, attributes=None):
         # OVERRIDE to add important information in the help message
         res = super().fields_get(allfields, attributes)
-        if "auto_batch" in res:
-            if res["auto_batch"].get("help"):
-                res["auto_batch"]["help"] += "\n\n" + self.env._(
+        # In Odoo 20 the form shows batch_creation_type (same help as auto_batch)
+        for fname in ("auto_batch", "batch_creation_type"):
+            if fname in res and res[fname].get("help"):
+                res[fname]["help"] += "\n\n" + self.env._(
                     "Note: Partners must be 'Allowed for batch grouping' for the "
                     "picking to be included in batches."
                 )

@@ -9,6 +9,14 @@ class TestPickingBatchPartnerEnable(TransactionCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
+        # Odoo 20: auto-batching requires the batch transfers group
+        cls.env.user.write(
+            {
+                "group_ids": [
+                    Command.link(cls.env.ref("stock.group_stock_picking_batch").id)
+                ]
+            }
+        )
         cls.stock_location = cls.env.ref("stock.stock_location_stock")
         cls.customer_location = cls.env.ref("stock.stock_location_customers")
         cls.partner = cls.env["res.partner"].create(
@@ -50,7 +58,7 @@ class TestPickingBatchPartnerEnable(TransactionCase):
                         {
                             "product_id": cls.product.id,
                             "product_uom_qty": 10,
-                            "product_uom": cls.product.uom_id.id,
+                            "uom_id": cls.product.uom_id.id,
                             "location_id": cls.stock_location.id,
                             "location_dest_id": cls.customer_location.id,
                         }
