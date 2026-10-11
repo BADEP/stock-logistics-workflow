@@ -2,12 +2,14 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 from odoo.exceptions import UserError
-from odoo.tests import Command, Form
+from odoo.tests import Command
 
 from odoo.addons.base.tests.common import BaseCommon
 
 
 class StockPickingReturnRestrictedQtyTest(BaseCommon):
+    _test_user_groups = ("stock.group_stock_manager",)
+
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
@@ -30,7 +32,7 @@ class StockPickingReturnRestrictedQtyTest(BaseCommon):
                             "reference": product.name,
                             "product_id": product.id,
                             "product_uom_qty": 20,
-                            "product_uom": product.uom_id.id,
+                            "uom_id": product.uom_id.id,
                             "location_id": stock_location.id,
                             "location_dest_id": customer_location.id,
                         }
@@ -43,66 +45,68 @@ class StockPickingReturnRestrictedQtyTest(BaseCommon):
         cls.picking.move_ids[:1].quantity = 20
         cls.picking.button_validate()
 
-    def get_return_picking_wizard(self, picking):
-        stock_return_picking_form = Form(
-            self.env["stock.return.picking"].with_context(
-                active_ids=picking.ids,
-                active_id=picking.ids[0],
-                active_model="stock.picking",
-            )
-        )
-        return stock_return_picking_form.save()
+    def _process_return(self, return_picking):
+        return_picking.action_confirm()
+        return_picking.action_assign()
 
     def test_return_not_allowed(self):
         """On this test we create a return picking with more quantity
         than the quantity that client have on his hand"""
         self.picking.picking_type_id.restrict_return_qty = True
-        return_picking = self.get_return_picking_wizard(self.picking)
-        self.assertEqual(return_picking.product_return_moves.quantity, 20)
+        return_picking = self.picking._create_return()
+        self.assertEqual(return_picking.move_ids.product_uom_qty, 20)
         with self.assertRaises(UserError):
-            return_picking.product_return_moves.quantity = 30
+            return_picking.move_ids.product_uom_qty = 30
 
     def test_return_without_restriction(self):
         """On this test we create a return picking with more quantity
         than the quantity that client have on his hand
         without the quantity restriction"""
         self.picking.picking_type_id.restrict_return_qty = False
-        return_picking = self.get_return_picking_wizard(self.picking)
-        self.assertEqual(return_picking.product_return_moves.quantity, 20)
-        return_picking.product_return_moves.quantity = 30
-        return_picking._create_return()
-        self.assertEqual(return_picking.product_return_moves.quantity, 30)
+        return_picking = self.picking._create_return()
+        self.assertEqual(return_picking.move_ids.product_uom_qty, 20)
+        return_picking.move_ids.product_uom_qty = 30
+        self._process_return(return_picking)
+        self.assertEqual(return_picking.move_ids.product_uom_qty, 30)
 
     def test_multiple_return(self):
         """On this test we are going to follow a sequence that a client
         can follow if he tries to return a product"""
         self.picking.picking_type_id.restrict_return_qty = True
-        wiz = self.get_return_picking_wizard(self.picking)
-        wiz.product_return_moves.quantity = 10
-        picking_returned_id = wiz._create_return()[0]
-        wiz = self.get_return_picking_wizard(self.picking)
-        self.assertEqual(wiz.product_return_moves.quantity, 10)
-        picking_returned_id._action_done()
-        wiz = self.get_return_picking_wizard(self.picking)
-        self.assertEqual(wiz.product_return_moves.quantity, 10)
+        picking_returned = self.picking._create_return()
+        picking_returned.move_ids.product_uom_qty = 10
+        self._process_return(picking_returned)
+        return_picking = self.picking._create_return()
+        self.assertEqual(return_picking.move_ids.product_uom_qty, 10)
+        # Creating a new return unreserves the pending ones: drop it and
+        # reserve the first return again
+        return_picking.action_cancel()
+        picking_returned.action_assign()
+        picking_returned.move_ids.picked = True
+        picking_returned._action_done()
+        return_picking = self.picking._create_return()
+        self.assertEqual(return_picking.move_ids.product_uom_qty, 10)
 
         with self.assertRaises(UserError):
-            wiz.product_return_moves.quantity = 80
+            return_picking.move_ids.product_uom_qty = 80
 
     def test_multiple_return_without_restriction(self):
         """On this test we are going to follow a sequence that a client
         can follow if he tries to return a product
         without the quantity restriction"""
         self.picking.picking_type_id.restrict_return_qty = False
-        wiz = self.get_return_picking_wizard(self.picking)
-        wiz.product_return_moves.quantity = 10
-        picking_returned_id = wiz._create_return()[0]
-        wiz = self.get_return_picking_wizard(self.picking)
-        self.assertEqual(wiz.product_return_moves.quantity, 10)
+        picking_returned = self.picking._create_return()
+        picking_returned.move_ids.product_uom_qty = 10
+        self._process_return(picking_returned)
+        return_picking = self.picking._create_return()
+        self.assertEqual(return_picking.move_ids.product_uom_qty, 10)
 
-        picking_returned_id._action_done()
-        wiz = self.get_return_picking_wizard(self.picking)
-        self.assertEqual(wiz.product_return_moves.quantity, 10)
+        return_picking.action_cancel()
+        picking_returned.action_assign()
+        picking_returned.move_ids.picked = True
+        picking_returned._action_done()
+        return_picking = self.picking._create_return()
+        self.assertEqual(return_picking.move_ids.product_uom_qty, 10)
 
-        wiz.product_return_moves.quantity = 80
-        self.assertEqual(wiz.product_return_moves.quantity, 80)
+        return_picking.move_ids.product_uom_qty = 80
+        self.assertEqual(return_picking.move_ids.product_uom_qty, 80)
