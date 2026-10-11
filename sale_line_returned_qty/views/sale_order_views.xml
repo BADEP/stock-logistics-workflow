@@ -24,7 +24,7 @@ License LGPL-3.0 or later (https://www.gnu.org/licenses/lgpl.html). -->
                 </div>
             </xpath>
             <xpath
-                expr="//page/field[@name='order_line']/list/field[@name='qty_delivered']"
+                expr="//page/field[@name='order_line']/list/column[field[@name='qty_delivered']]"
                 position="after"
             >
                 <field
