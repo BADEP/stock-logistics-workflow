@@ -34,8 +34,7 @@ class TestPurchaseOrderBase(BaseCommon):
         order_form.partner_id = self.partner
         with order_form.order_line.new() as line_form:
             line_form.product_id = self.product_storable
-        order = order_form.save()
-        return order
+        return order_form.save()
 
     def _action_picking_validate(self, picking):
         if any(move.state == "confirmed" for move in picking.move_ids):

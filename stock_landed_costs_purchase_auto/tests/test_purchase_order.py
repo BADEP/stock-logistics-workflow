@@ -7,11 +7,15 @@ from .common import TestPurchaseOrderBase
 
 
 class TestPurchaseOrder(TestPurchaseOrderBase):
+    _test_user_groups = None
+
     @users("test_purchase_user")
     def test_order_purchase_basic_user(self):
         self.order = self.order.with_user(self.env.user)
         self.order.button_confirm()
-        self.assertTrue(self.order.landed_cost_ids)
+        # Odoo 20 filters x2many values by read access: the purchase user
+        # cannot read landed costs (stock managers only), so check with sudo
+        self.assertTrue(self.order.sudo().landed_cost_ids)
 
     def test_order_lc(self):
         self.order.button_confirm()
