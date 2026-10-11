@@ -3,17 +3,12 @@
 
 {
     "name": "Batch Transfer Sub State",
-    "version": "19.0.1.0.0",
+    "version": "20.0.1.0.0",
     "category": "Tools",
     "author": "Camptocamp, Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/stock-logistics-workflow",
     "license": "AGPL-3",
-    "depends": [
-        # odoo
-        "stock_picking_batch",
-        # OCA/server-ux
-        "base_substate",
-    ],
+    "depends": ["stock", "base_substate"],
     "data": [
         # Data
         "data/stock_picking_batch_substate_data.xml",

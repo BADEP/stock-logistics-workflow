@@ -18,7 +18,8 @@ class TestBatchSubstate(TransactionCase):
             {
                 "name": "Draft Substate 1",
                 "target_state_value_id": draft_target_state.id,
-                "sequence": 1,
+                # below demo substates (sequence 1) to get a deterministic default
+                "sequence": 0,
             }
         )
         in_progress_target_state = cls.env.ref(
