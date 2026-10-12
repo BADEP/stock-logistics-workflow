@@ -12,6 +12,8 @@ from odoo.addons.stock_partner_delivery_window.tests.common import (
 
 
 class TestSalePartnerDeliveryWindow(PartnerDeliveryWindowCommon):
+    _test_user_groups = None
+
     @classmethod
     def _create_order(cls, partner):
         return cls.env["sale.order"].create(
