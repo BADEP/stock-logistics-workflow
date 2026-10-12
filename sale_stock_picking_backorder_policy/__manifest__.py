@@ -4,7 +4,7 @@
     "name": "Sale Stock Picking Backorder Policy",
     "summary": "Carry the backorder policy from the customer and sale order to"
     " its deliveries.",
-    "version": "19.0.1.1.0",
+    "version": "20.0.1.0.0",
     "category": "Inventory/Configuration",
     "author": "Camptocamp, Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/stock-logistics-workflow",
