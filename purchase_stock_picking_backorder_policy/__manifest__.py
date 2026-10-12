@@ -4,7 +4,7 @@
     "name": "Purchase Stock Picking Backorder Policy",
     "summary": "Carry the backorder policy from the vendor and purchase order to"
     " its receipts.",
-    "version": "19.0.1.0.0",
+    "version": "20.0.1.0.0",
     "category": "Inventory/Configuration",
     "author": "Camptocamp, Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/stock-logistics-workflow",
