@@ -52,7 +52,7 @@ class StockMove(models.Model):
             rec.usage_quantity = sum(rec.usage_ids.mapped("quantity"))
             rec.usage_value = sum(rec.usage_ids.mapped("value"))
 
-    def _set_value(self, correction_quantity=None):
+    def _set_value(self, recompute_date=None, skip_check=False):
         fifo_moves = self.filtered(
             lambda m: m._is_out() and m.product_id.cost_method == "fifo"
         )
@@ -60,14 +60,16 @@ class StockMove(models.Model):
             # Process FIFO moves with context
             for move in fifo_moves:
                 super(StockMove, move.with_context(valued_move=move))._set_value(
-                    correction_quantity=correction_quantity
+                    recompute_date=recompute_date, skip_check=skip_check
                 )
             # Process non-FIFO moves normally
             return (self - fifo_moves)._set_value(
-                correction_quantity=correction_quantity
+                recompute_date=recompute_date, skip_check=skip_check
             )
         else:
-            return super()._set_value(correction_quantity=correction_quantity)
+            return super()._set_value(
+                recompute_date=recompute_date, skip_check=skip_check
+            )
 
     def _action_done(self, cancel_backorder=False):
         result = super()._action_done(cancel_backorder=cancel_backorder)

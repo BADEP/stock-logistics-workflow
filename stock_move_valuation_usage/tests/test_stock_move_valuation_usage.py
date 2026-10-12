@@ -136,7 +136,7 @@ class TestStockMoveValuationUsage(TransactionCase):
                     Command.create(
                         {
                             "product_id": product.id,
-                            "product_uom": product.uom_id.id,
+                            "uom_id": product.uom_id.id,
                             "product_uom_qty": qty,
                             "location_id": self.stock_location_id.id,
                             "location_dest_id": self.stock_location_customer_id.id,
@@ -163,7 +163,7 @@ class TestStockMoveValuationUsage(TransactionCase):
                     Command.create(
                         {
                             "product_id": product.id,
-                            "product_uom": product.uom_id.id,
+                            "uom_id": product.uom_id.id,
                             "product_uom_qty": qty,
                             "location_id": self.stock_location_supplier_id.id,
                             "location_dest_id": self.stock_location_customer_id.id,
@@ -186,7 +186,7 @@ class TestStockMoveValuationUsage(TransactionCase):
                     Command.create(
                         {
                             "product_id": product.id,
-                            "product_uom": product.uom_id.id,
+                            "uom_id": product.uom_id.id,
                             "product_uom_qty": qty,
                             "price_unit": 10.0,
                             "move_dest_ids": move_dest_id,

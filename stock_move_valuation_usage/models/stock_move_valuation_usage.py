@@ -1,8 +1,9 @@
 # 2026 Copyright ForgeFlow, S.L. (https://www.forgeflow.com)
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl).
 
-from odoo import api, fields, models, tools
+from odoo import api, fields, models
 from odoo.exceptions import ValidationError
+from odoo.tools.sql import create_index
 
 
 class StockMoveValuationUsage(models.Model):
@@ -30,7 +31,7 @@ class StockMoveValuationUsage(models.Model):
     value = fields.Float(string="Taken Value")
 
     def init(self):
-        tools.create_index(
+        create_index(
             self.env.cr,
             "stock_move_valuation_usage_index",
             self._table,
