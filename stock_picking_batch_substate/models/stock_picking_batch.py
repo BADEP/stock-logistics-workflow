@@ -6,4 +6,7 @@ from odoo import models
 
 class StockPickingBatch(models.Model):
     _name = "stock.picking.batch"
-    _inherit = ["stock.picking.batch", "base.substate.mixin"]
+    _inherit = [  # noqa: RUF012
+        "stock.picking.batch",
+        "base.substate.mixin",
+    ]
